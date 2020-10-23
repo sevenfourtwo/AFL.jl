@@ -1,0 +1,5 @@
+/Manifest.toml
+/docs/build/
+/deps/build.log
+/deps/afl-shim
+/.vscode
