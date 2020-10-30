@@ -1,10 +1,9 @@
 using AFL
-using AFL_jll
 using Test
 
 @testset "AFL" begin
     @testset "run_target" begin
-        target = AFL.init_target(AFL_jll.afl_test_instr_exe_path)
+        target = AFL.init_target(joinpath(@__DIR__, "../deps/afl-test"))
         @test AFL.run_target(target, b"1234678") == AFL.Ok
     end
     
@@ -14,7 +13,7 @@ using Test
     end
 
     @testset "close" begin
-        target = AFL.init_target(AFL_jll.afl_test_instr_exe_path)
+        target = AFL.init_target(joinpath(@__DIR__, "../deps/afl-test"))
         close(target)
     end
     
@@ -71,7 +70,7 @@ using Test
     end
 
     @testset "deterministic" begin
-        target = AFL.init_target(AFL_jll.afl_test_instr_exe_path)
+        target = AFL.init_target(joinpath(@__DIR__, "../deps/afl-test"))
 
         AFL.run_target(target, b"12345678")
         cov1 = AFL.classify_coverage(target)

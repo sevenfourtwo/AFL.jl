@@ -103,6 +103,8 @@ Start a forkserver for the given target.
 function init_target(target_path::String; qemu::Bool=false, memlimit::Int=200)
     isfile(target_path) || error("Target '$target_path' does not exist")
 
+    # TODO: check qemu supported on current platform
+
     # flags for the 64kb shared memory segment
     shmflags = IPC_CREAT + SHM_RW
 
@@ -130,9 +132,12 @@ function init_target(target_path::String; qemu::Bool=false, memlimit::Int=200)
 
     # TODO: support cli args
     if qemu
-        AFL_jll.afl_qemu_trace_x86_64_exe() do qemu_exe
-            #qemu_path = AFL_jll.afl_qemu_trace_exe_path
-            cmd = Cmd(`$shim $input_file $memlimit $qemu_exe $target_path`, env=env)
+        AFL_jll.afl_clang_fast() do afl
+            qemu_exe = joinpath(dirname(afl), "afl-qemu-trace-x86_64")
+
+            withenv("QEMU_LOG" => "nochain") do
+                cmd = Cmd(`$shim $input_file $memlimit $qemu_exe -- $target_path`, env=env)
+            end
         end
     else
         cmd = Cmd(`$shim $input_file $memlimit $target_path`, env=env)
@@ -143,7 +148,11 @@ function init_target(target_path::String; qemu::Bool=false, memlimit::Int=200)
     # read the 4 byte hello message from the AFL trampoline
     res = read(handle, 4)
     if length(res) != 4
-        error("Failed handshake with forkserver")
+        if trace_bits[1:4] == EXEC_FAIL_SIG
+            error("Forkserver failed to start properly")
+        else
+            error("Failed handshake with forkserver")
+        end
     end
     
     Target(handle, shm_id, trace_bits, input_io)

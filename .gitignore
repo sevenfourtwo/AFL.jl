@@ -2,4 +2,5 @@
 /docs/build/
 /deps/build.log
 /deps/afl-shim
+/deps/afl-test
 /.vscode
