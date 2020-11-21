@@ -1,5 +1,5 @@
 using AFLplusplus_jll
-using CLang_jll
+using Clang_jll
 
 Clang_jll.clang() do clang
 	src = joinpath(@__DIR__, "afl-shim.c")
