@@ -1,6 +1,6 @@
 module AFL
 
-using AFL_jll
+using AFLplusplus_jll
 
 export init_target, 
        run_target, 
@@ -132,7 +132,7 @@ function init_target(target_path::String; qemu::Bool=false, memlimit::Int=200)
 
     # TODO: support cli args
     if qemu
-        AFL_jll.afl_clang_fast() do afl
+        AFLplusplus_jll.afl_clang_fast() do afl
             qemu_exe = joinpath(dirname(afl), "afl-qemu-trace-x86_64")
 
             withenv("QEMU_LOG" => "nochain") do
@@ -170,7 +170,6 @@ function run_target(target::Target, input::Vector{UInt8}; timeout::Int=1)::Resul
 
     # write input to the temporary input file
     truncate(target.input_io, 0)
-    #write(target.input_io, UInt32(length(input)))
     write(target.input_io, input)
     flush(target.input_io)
 
